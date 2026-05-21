@@ -173,6 +173,12 @@ Then launch the dashboard:
 streamlit run dashboard/app.py
 ```
 
+In the dashboard, use the **Executive Deliverables** section to:
+
+- generate `reports/executive_report.md`
+- download the executive report
+- download the 20-minute presentation outline
+
 Dashboard filters:
 
 - platform

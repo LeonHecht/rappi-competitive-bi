@@ -14,9 +14,12 @@ import plotly.express as px
 import streamlit as st
 
 from analysis.processing import add_competitiveness_metrics, attach_zone_type, clean_scrape
+from analysis.reporting import generate_report_artifacts
 
 PROCESSED_DATA_PATH = Path("data/processed/clean_scrape.csv")
 RAW_DATA_PATH = Path("data/raw/scrape.csv")
+EXECUTIVE_REPORT_PATH = Path("reports/executive_report.md")
+PRESENTATION_OUTLINE_PATH = Path("reports/presentation_outline.md")
 
 
 def main() -> None:
@@ -31,6 +34,7 @@ def main() -> None:
     filtered = apply_filters(df)
     render_metrics(filtered)
     render_charts(filtered)
+    render_report_downloads()
 
     st.subheader("Clean Data")
     st.dataframe(filtered, use_container_width=True)
@@ -131,6 +135,39 @@ def render_charts(df: pd.DataFrame) -> None:
                 title="Promo Frequency by Platform",
             )
             st.plotly_chart(chart, use_container_width=True)
+
+
+def render_report_downloads() -> None:
+    st.subheader("Executive Deliverables")
+    col1, col2, col3 = st.columns([1, 1, 2])
+
+    with col1:
+        if st.button("Generate executive report", type="primary"):
+            outputs = generate_report_artifacts()
+            st.success(
+                "Generated: "
+                + ", ".join(str(path) for path in outputs.values())
+            )
+
+    with col2:
+        if EXECUTIVE_REPORT_PATH.exists():
+            st.download_button(
+                "Download report",
+                EXECUTIVE_REPORT_PATH.read_text(encoding="utf-8"),
+                file_name="executive_report.md",
+                mime="text/markdown",
+            )
+        else:
+            st.caption("Generate the report first.")
+
+    with col3:
+        if PRESENTATION_OUTLINE_PATH.exists():
+            st.download_button(
+                "Download presentation outline",
+                PRESENTATION_OUTLINE_PATH.read_text(encoding="utf-8"),
+                file_name="presentation_outline.md",
+                mime="text/markdown",
+            )
 
 
 def format_money(value: float | None) -> str:
