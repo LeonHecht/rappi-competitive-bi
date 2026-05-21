@@ -1,0 +1,11 @@
+products:
+  - id: burger
+    name: "hamburguesa"
+    category: "food"
+  - id: sushi
+    name: "sushi"
+    category: "food"
+  - id: coffee
+    name: "cafe"
+    category: "beverage"
+

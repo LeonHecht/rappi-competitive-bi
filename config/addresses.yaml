@@ -1,0 +1,16 @@
+addresses:
+  - id: cdmx_condesa
+    label: "Condesa, CDMX"
+    street: "Av. Tamaulipas 150"
+    city: "Ciudad de Mexico"
+    state: "CDMX"
+    postal_code: "06140"
+    country: "MX"
+  - id: gdl_americana
+    label: "Colonia Americana, Guadalajara"
+    street: "Av. Chapultepec Sur 100"
+    city: "Guadalajara"
+    state: "Jalisco"
+    postal_code: "44160"
+    country: "MX"
+

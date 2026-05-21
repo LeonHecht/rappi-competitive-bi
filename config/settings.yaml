@@ -1,0 +1,15 @@
+scraping:
+  headless: true
+  timeout_ms: 30000
+  screenshots_dir: "reports/screenshots"
+  user_data_dir: null
+  platforms:
+    - rappi
+    - uber_eats
+    - didi_food
+
+output:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  latest_csv: "data/raw/latest.csv"
+  latest_json: "data/raw/latest.json"
