@@ -1,8 +1,8 @@
 # Rappi Competitive BI
 
-Python project scaffold for a competitive intelligence scraper that compares Rappi, Uber Eats, and DiDi Food in Mexico.
+Python project for collecting and analyzing competitive intelligence across Rappi, Uber Eats, and DiDi Food in Mexico.
 
-This version defines a generic scraping framework with a `BaseScraper`, platform adapters, browser session initialization, optional persistent Chromium profile support, configuration files, structured logging, retry helpers, screenshot capture, raw CSV/JSON output, dry-run mode, and a Streamlit dashboard. Platform-specific selectors are intentionally left as TODOs.
+It includes a generic Playwright scraping framework, platform adapters, persistent Chromium profile support, structured logging, retry helpers, screenshot capture, CSV/JSON outputs, an analysis pipeline, generated charts, and a Streamlit dashboard.
 
 ## Project Structure
 
@@ -86,14 +86,44 @@ Run without opening a browser:
 python main.py --dry-run --output data/raw/dry-run.csv
 ```
 
-The platform adapters use best-effort public web selectors. If a platform requires login, run with a persistent profile and complete login manually:
+### Recommended Collection Flow
+
+Use `data/raw/scrape.csv` as the canonical raw file for analysis:
 
 ```bash
-python main.py --platform rappi --no-headless --user-data-dir .browser-profile
-python main.py --platform didi_food --no-headless --user-data-dir .browser-profile
+python main.py \
+  --platform rappi \
+  --platform uber_eats \
+  --platform didi_food \
+  --addresses cdmx_condesa \
+  --products burger \
+  --no-headless \
+  --user-data-dir .browser-profile \
+  --output data/raw/scrape.csv
+```
+
+For quick platform-specific tests:
+
+```bash
+python main.py --platform rappi --addresses cdmx_condesa --products burger --limit 1 --no-headless --user-data-dir .browser-profile --output data/raw/rappi-test.csv
+python main.py --platform uber_eats --addresses cdmx_condesa --products burger --limit 1 --no-headless --user-data-dir .browser-profile --output data/raw/uber-live-test.csv
+python main.py --platform didi_food --addresses cdmx_condesa --products burger --limit 1 --no-headless --user-data-dir .browser-profile --output data/raw/didi-test.csv
+```
+
+The platform adapters use best-effort public web selectors. If a platform needs session state, run with a persistent profile and complete setup manually:
+
+```bash
+python main.py --platform rappi --no-headless --user-data-dir .browser-profile --limit 1
+python main.py --platform didi_food --no-headless --user-data-dir .browser-profile --limit 1
 ```
 
 Checkout-level fields such as service fee and final total may be unavailable from the merchant menu page. In that case the scraper writes `partial_success` and lists missing fields in `raw_payload.missing_fields`.
+
+Current platform notes:
+
+- Uber Eats: supports web address setup, McDonald's merchant selection, product matching, menu price, ETA, promotions, and visible fees when exposed.
+- Rappi: uses the address already selected in the persistent browser session. Set the desired address manually in `.browser-profile` before running.
+- DiDi Food: uses the public `didi-food.com/es-MX/food/` page. It can collect store-card data such as ETA, delivery fee, rating, and promotions; menu-level product data may be unavailable depending on store availability/login state.
 
 ## Outputs
 
@@ -122,6 +152,12 @@ Use `data/raw/scrape.csv` as the canonical raw input:
 python -m analysis.run_pipeline --input data/raw/scrape.csv
 ```
 
+If you only have a platform test file, pass that file instead:
+
+```bash
+python -m analysis.run_pipeline --input data/raw/rappi-test.csv
+```
+
 The pipeline writes:
 
 - `data/processed/clean_scrape.csv`
@@ -130,6 +166,28 @@ The pipeline writes:
 - `data/processed/promo_frequency_by_platform.csv`
 - `data/processed/availability_by_platform_zone.csv`
 - chart PNGs in `reports/figures/`
+
+Then launch the dashboard:
+
+```bash
+streamlit run dashboard/app.py
+```
+
+Dashboard filters:
+
+- platform
+- zone_type
+- product
+- address
+
+The analysis computes:
+
+- summary tables by platform and zone type
+- `price_competitiveness_index = rappi_final_total / competitor_average_final_total`
+- `delivery_fee_gap = rappi_delivery_fee - competitor_average_delivery_fee`
+- ETA midpoint and Rappi ETA gap
+- promo frequency by platform
+- availability rate by platform and zone type
 
 ## Selector Maintenance
 
