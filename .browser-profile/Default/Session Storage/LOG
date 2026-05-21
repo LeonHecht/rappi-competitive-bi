@@ -1,3 +1,6 @@
-2026/05/21-15:10:19.624 220c Reusing MANIFEST /home/leon/coding-projects/rappi-competitive-bi/.browser-profile/Default/Session Storage/MANIFEST-000001
-2026/05/21-15:10:19.626 220c Recovering log #3
-2026/05/21-15:10:19.627 220c Reusing old log /home/leon/coding-projects/rappi-competitive-bi/.browser-profile/Default/Session Storage/000003.log 
+2026/05/21-15:27:03.627 2846 Reusing MANIFEST /home/leon/coding-projects/rappi-competitive-bi/.browser-profile/Default/Session Storage/MANIFEST-000001
+2026/05/21-15:27:03.629 2846 Recovering log #3
+2026/05/21-15:27:03.631 2846 Reusing old log /home/leon/coding-projects/rappi-competitive-bi/.browser-profile/Default/Session Storage/000003.log 
+2026/05/21-15:28:03.145 2848 Level-0 table #5: started
+2026/05/21-15:28:03.161 2848 Level-0 table #5: 16356 bytes OK
+2026/05/21-15:28:03.168 2848 Delete type=0 #3

@@ -31,6 +31,7 @@ class Address:
     state: str
     postal_code: str
     country: str = "MX"
+    zone_type: str | None = None
 
 
 @dataclass(frozen=True)

@@ -112,7 +112,24 @@ Screenshots are written to:
 streamlit run dashboard/app.py
 ```
 
-The dashboard loads `data/raw/latest.csv` by default, or accepts an uploaded CSV.
+The dashboard loads `data/processed/clean_scrape.csv` by default, or accepts an uploaded CSV.
+
+## Analysis Pipeline
+
+Use `data/raw/scrape.csv` as the canonical raw input:
+
+```bash
+python -m analysis.run_pipeline --input data/raw/scrape.csv
+```
+
+The pipeline writes:
+
+- `data/processed/clean_scrape.csv`
+- `data/processed/summary_by_platform_zone.csv`
+- `data/processed/rappi_competitiveness_metrics.csv`
+- `data/processed/promo_frequency_by_platform.csv`
+- `data/processed/availability_by_platform_zone.csv`
+- chart PNGs in `reports/figures/`
 
 ## Selector Maintenance
 

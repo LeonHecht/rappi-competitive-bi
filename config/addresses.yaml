@@ -6,6 +6,7 @@ addresses:
     state: "CDMX"
     postal_code: "06140"
     country: "MX"
+    zone_type: "dense_urban"
   - id: gdl_americana
     label: "Colonia Americana, Guadalajara"
     street: "Av. Chapultepec Sur 100"
@@ -13,4 +14,4 @@ addresses:
     state: "Jalisco"
     postal_code: "44160"
     country: "MX"
-
+    zone_type: "dense_urban"
