@@ -116,38 +116,75 @@ async def run_scrapers(args: argparse.Namespace) -> None:
 
     from scrapers.session import browser_session
 
-    async with browser_session(
-        headless=headless,
-        timeout_ms=timeout_ms,
-        user_data_dir=Path(user_data_dir) if user_data_dir else None,
-    ) as context:
-        for platform, address, product in combinations:
-            scraper_cls = SCRAPER_REGISTRY.get(platform)
-            if scraper_cls is None:
-                LOGGER.warning("Unknown platform skipped", extra={"platform": platform})
-                continue
+    try:
+        async with browser_session(
+            headless=headless,
+            timeout_ms=timeout_ms,
+            user_data_dir=Path(user_data_dir) if user_data_dir else None,
+        ) as context:
+            for platform, address, product in combinations:
+                scraper_cls = SCRAPER_REGISTRY.get(platform)
+                if scraper_cls is None:
+                    LOGGER.warning("Unknown platform skipped", extra={"platform": platform})
+                    continue
 
-            scraper = scraper_cls(context=context, screenshot_dir=screenshots_dir)
-            LOGGER.info(
-                "Starting scrape",
-                extra={
-                    "platform": platform,
-                    "address_id": address.id,
-                    "product_id": product.id,
-                },
-            )
-            try:
-                results = await scraper.scrape(address, product)
-            except NotImplementedError as exc:
+                scraper = scraper_cls(context=context, screenshot_dir=screenshots_dir)
                 LOGGER.info(
-                    "Scraper placeholder reached",
-                    extra={"platform": platform, "error": str(exc)},
+                    "Starting scrape",
+                    extra={
+                        "platform": platform,
+                        "address_id": address.id,
+                        "product_id": product.id,
+                    },
                 )
-                continue
-            rows.extend(result.to_dict() for result in results)
+                try:
+                    results = await scraper.scrape(address, product)
+                except NotImplementedError as exc:
+                    LOGGER.info(
+                        "Scraper placeholder reached",
+                        extra={"platform": platform, "error": str(exc)},
+                    )
+                    continue
+                except Exception as exc:  # noqa: BLE001 - one failed address/product must not stop the run.
+                    LOGGER.exception(
+                        "Scrape combination failed",
+                        extra={
+                            "platform": platform,
+                            "address_id": address.id,
+                            "product_id": product.id,
+                        },
+                    )
+                    rows.append(
+                        build_failure_result(platform, address, product, exc).to_dict()
+                    )
+                    continue
+                rows.extend(result.to_dict() for result in results)
+    except Exception as exc:  # noqa: BLE001 - browser startup/environment failures are reported as data.
+        LOGGER.exception("Browser session failed")
+        rows.extend(
+            build_failure_result(platform, address, product, exc).to_dict()
+            for platform, address, product in combinations
+        )
 
     write_raw_outputs(rows, csv_path, json_path)
     LOGGER.info("Scrape run completed", extra={"row_count": len(rows)})
+
+
+def build_failure_result(
+    platform: str,
+    address: Address,
+    product: ProductQuery,
+    error: Exception,
+) -> ScrapeResult:
+    return ScrapeResult(
+        platform=platform,
+        address_id=address.id,
+        product_id=product.id,
+        product_name=product.name,
+        status="failed",
+        error=str(error),
+        raw_payload={"address_label": address.label},
+    )
 
 
 def parse_args() -> argparse.Namespace:

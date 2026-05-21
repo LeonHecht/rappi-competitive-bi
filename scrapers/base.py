@@ -57,8 +57,12 @@ class ScrapeResult:
     currency: str = "MXN"
     delivery_fee: float | None = None
     service_fee: float | None = None
+    final_total: float | None = None
     estimated_delivery_minutes: int | None = None
     rating: float | None = None
+    visible_promotions: list[str] | None = None
+    status: str = "success"
+    error: str | None = None
     raw_payload: dict[str, Any] | None = None
     scraped_at: str = ""
 

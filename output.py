@@ -12,6 +12,8 @@ DEFAULT_FIELDNAMES = [
     "currency",
     "delivery_fee",
     "estimated_delivery_minutes",
+    "error",
+    "final_total",
     "item_name",
     "platform",
     "price",
@@ -21,7 +23,9 @@ DEFAULT_FIELDNAMES = [
     "raw_payload",
     "scraped_at",
     "service_fee",
+    "status",
     "store_name",
+    "visible_promotions",
 ]
 
 

@@ -26,6 +26,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 playwright install chromium
+python -m playwright install-deps chromium
 ```
 
 On Windows PowerShell:
@@ -35,6 +36,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 playwright install chromium
+python -m playwright install-deps chromium
 ```
 
 ## Configuration
@@ -84,7 +86,14 @@ Run without opening a browser:
 python main.py --dry-run --output data/raw/dry-run.csv
 ```
 
-Current adapters raise `NotImplementedError` after opening each platform homepage because selectors are not implemented yet.
+The platform adapters use best-effort public web selectors. If a platform requires login, run with a persistent profile and complete login manually:
+
+```bash
+python main.py --platform rappi --no-headless --user-data-dir .browser-profile
+python main.py --platform didi_food --no-headless --user-data-dir .browser-profile
+```
+
+Checkout-level fields such as service fee and final total may be unavailable from the merchant menu page. In that case the scraper writes `partial_success` and lists missing fields in `raw_payload.missing_fields`.
 
 ## Outputs
 
@@ -105,12 +114,6 @@ streamlit run dashboard/app.py
 
 The dashboard loads `data/raw/latest.csv` by default, or accepts an uploaded CSV.
 
-## Next Implementation Step
+## Selector Maintenance
 
-For each platform adapter in `scrapers/`, implement:
-
-- `set_address`
-- `search_product`
-- `extract_results`
-
-Keep each adapter responsible for selectors and platform-specific behavior, and return normalized `ScrapeResult` records for downstream processing.
+Each adapter keeps platform-specific selectors in its own file under `scrapers/`. Prefer role, placeholder, and visible-text locators. If a live smoke test fails, inspect the saved screenshot and adjust only the affected platform adapter.
